@@ -5,6 +5,7 @@ import type { Status,Task } from "./types.js";
 import {CreateTaskSchema} from "./schema.js";
 import {TaskRepository} from "./repository.js";
 import "dotenv/config";
+import cors from "cors";
 
 const taskRepo=new TaskRepository();
 
@@ -23,6 +24,7 @@ console.log(taskByStatus);
 
 const app=express();
 app.use(express.json());
+app.use(cors());
 
 const store=new TaskStore();
 
