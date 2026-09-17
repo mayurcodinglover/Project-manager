@@ -8,3 +8,4 @@ export const CreateTaskSchema=z.object({
 });
 
 export type CreateTaskInput=z.infer<typeof CreateTaskSchema>;
+export const UpdateTaskSchema=CreateTaskSchema.partial();

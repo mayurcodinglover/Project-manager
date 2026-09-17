@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { response } from 'express';
 import type {Request,Response} from 'express';
 import {describeTask, TaskStore} from "./store.js";
 import type { Status,Task } from "./types.js";
@@ -55,11 +55,19 @@ app.post("/tasks",async (req:Request,res:Response)=>{
     });
     res.status(201).json(newTask);
     });
+app.patch("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
+    try {
+        const updated=await taskRepo.update(req.params.id,req.body);
+        res.json(updated);
+    } catch (error) {
+        res.status(404).json({error:"Task not found"})
+    }
+})
 app.delete("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
     const task=await taskRepo.getById(req.params.id);
     if(!task){
         return res.status(404).json({error:"Task not found"});
     }
     await taskRepo.delete(req.params.id);
-    res.status(200).send("Task deleted successfully");
+    res.status(204).send();
 })
