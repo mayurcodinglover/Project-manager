@@ -7,3 +7,8 @@ export interface Task {
     assignedTo?:string;
     createdAt:string;
 }
+
+export type FetchState=
+| {status:"loading"}
+| {status:"error";message:string}
+| {status:"success";tasks:Task[]};
