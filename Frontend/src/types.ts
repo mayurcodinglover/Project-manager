@@ -1,9 +1,10 @@
+export type Status="todo" | "inprogress" | "done";
 export interface Task {
     id:string;
     title:string;
     description:string;
     priority:"low"|"medium"|"high";
-    status:"todo"|"inprogress"|"done";
+    status:Status;
     assignedTo?:string;
     createdAt:string;
 }
