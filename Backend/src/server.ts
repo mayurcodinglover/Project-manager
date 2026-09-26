@@ -6,6 +6,12 @@ import {CreateTaskSchema} from "./schema.js";
 import {TaskRepository} from "./repository.js";
 import "dotenv/config";
 import cors from "cors";
+import { PrismaClient } from '@prisma/client';
+import { CreateUserSchema } from './user.schema.js';
+import { UserRepository } from './user.repository.js';
+
+const userRepo=new UserRepository();
+const prisma=new PrismaClient();
 
 const taskRepo=new TaskRepository();
 
@@ -35,7 +41,19 @@ app.listen(3000,()=>{
 })
 
 app.get("/tasks",async (req:Request,res:Response)=>{
+    const tasks=await prisma.task.findMany({include:{user:true}})
+})
+app.get("/users",async(req:Request,res:Response)=>{
     res.json(await taskRepo.getAll());
+})
+
+app.post("/users",async(req:Request,res:Response)=>{
+    const result=CreateUserSchema.safeParse(req.body);
+    if(!result.success){
+        return res.status(400).json({error:result.error.flatten()});
+    }
+    const newUser=await userRepo.add(result.data);
+    res.status(201).json(newUser);
 })
 app.get("/tasks/:status",async(req:Request<{status:Status}>,res:Response)=>{
     const tasks=await taskRepo.getAll();

@@ -16,6 +16,12 @@ enum Status {
   inprogress
   done
 }
+model User {
+  id String @id @default(uuid())
+  name String
+  email String
+  tasks Task[]
+}
 model Task {
     id String @id @default(uuid())
     title String
@@ -24,4 +30,5 @@ model Task {
     status Status @default(todo)
     assignedTo String?
     createdAt DateTime @default(now())
+    user User? @relation(fields: [assignedTo],references: [id])
 }
