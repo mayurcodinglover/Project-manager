@@ -1,6 +1,6 @@
 import { useState,useEffect} from 'react'
-import type { Task,FetchState,Status } from './types'
-import { deleteTask, fetchTask, updateTask } from './api'
+import { type Task,type FetchState,type Status, type User } from './types'
+import { deleteTask, fetchTask, fetchUsers, updateTask } from './api'
 import TaskForm from './TaskForm'
 import './App.css'
 import { groupByStatus } from './utils'
@@ -9,6 +9,10 @@ function App() {
 
   
   const [state, setState] = useState<FetchState>({status:"loading"});
+  const [users,setUsers]=useState<User[]>([]);
+  useEffect(()=>{
+    fetchUsers().then(setUsers).catch(console.error)
+  },[])
 
   useEffect(()=>{
     fetchTask().then((data)=>{
@@ -42,7 +46,7 @@ function App() {
    return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Tasks ({state.tasks.length})</h1>
-      <TaskForm onCreated={handleTaskCreated} />
+      <TaskForm onCreated={handleTaskCreated}  users={users} />
       <div style={{ display: "flex", gap: "1rem" }}>
         {columns.map((col) => (
           <div key={col.key} style={{ flex: 1, border: "1px solid #ccc", borderRadius: 8, padding: "0.75rem" }}>
@@ -51,6 +55,7 @@ function App() {
               {grouped[col.key].map((task) => (
                 <li key={task.id} style={{ marginBottom: "0.5rem", padding: "0.5rem", background: "#f5f5f5", borderRadius: 4 }}>
                   <strong>{task.title}</strong> — {task.priority}
+                  {task.user && <span> . Assigned to {task.user.name}</span>}
                   <div>
                     <select
                       value={task.status}

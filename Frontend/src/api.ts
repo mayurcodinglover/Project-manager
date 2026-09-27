@@ -1,4 +1,4 @@
-import type {Task} from "./types.js";
+import type {Task,User} from "./types.js";
 
 const API_URL="http://localhost:3000";
 
@@ -15,6 +15,23 @@ export interface CreateTaskInput{
     description?:string;
     assignedTo?:string;
     priority:"low"|"medium"|"high";
+}
+
+export async function fetchUsers():Promise<User[]>{
+    const res=await fetch(`${API_URL}/users`);
+    if(!res.ok){
+        throw new Error(`Failed to fetch users :${res.status}`);
+    }
+    return res.json();
+}
+export async function createUser(input:Omit<User,"id">):Promise<User>{
+    const res=await fetch(`${API_URL}/users`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(input)
+    });
+    if(!res.ok) throw new Error(`Failed to create user ${res.status}`);
+    return res.json();
 }
 
 export async function createTask(input:CreateTaskInput):Promise<Task>{

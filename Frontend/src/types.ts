@@ -7,6 +7,12 @@ export interface Task {
     status:Status;
     assignedTo?:string;
     createdAt:string;
+    user?: User | null;
+}
+export interface User {
+    id:string;
+    name:string;
+    email:string;
 }
 
 export type FetchState=

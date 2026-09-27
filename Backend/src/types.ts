@@ -12,6 +12,7 @@ export interface Task extends BaseEntity{
     status:Status;
     createdAt:Date;
     assignedTo?:string | null;
+    user?:User | null;
 }
 
 export interface User extends BaseEntity{
