@@ -17,10 +17,10 @@ export class TaskRepository{
     async getAll():Promise<TaskWithUser[]>{
         return prisma.task.findMany({include:{user:true}});
     }
-    async getById(id:string):Promise<Task | null>{
-        return prisma.task.findUnique({where:{id}});
+    async getById(id:string):Promise<TaskWithUser | null>{
+        return prisma.task.findUnique({where:{id},include:{user:true}});
     }
-    async update(id:string,updates:Partial<Task>):Promise<TaskWithUser>{
+    async update(id:string,updates:Partial<UpdateTaskInput>):Promise<TaskWithUser>{
         return prisma.task.update({ where: { id }, data: updates, include: { user: true } });
 }
     async delete(id:string):Promise<Task>{

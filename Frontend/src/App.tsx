@@ -4,10 +4,11 @@ import { deleteTask, fetchTask, fetchUsers, updateTask } from './api'
 import TaskForm from './TaskForm'
 import './App.css'
 import { groupByStatus } from './utils'
+import { UserForm } from './UserForm'
 
 function App() {
 
-  
+
   const [state, setState] = useState<FetchState>({status:"loading"});
   const [users,setUsers]=useState<User[]>([]);
   useEffect(()=>{
@@ -25,6 +26,9 @@ function App() {
     if(state.status!=="success") return;
     setState({status:"success",tasks:[...state.tasks,newTask]})
   }
+    function handleUserCreated(newUser: User) {
+  setUsers((prev) => [...prev, newUser]);
+}
   const handleStatusChange=async(id:string,status:Task["status"])=>{
     if(state.status!=="success") return;
     const updated=await updateTask(id,{status})
@@ -46,6 +50,7 @@ function App() {
    return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Tasks ({state.tasks.length})</h1>
+      <UserForm onCreated={handleUserCreated} />
       <TaskForm onCreated={handleTaskCreated}  users={users} />
       <div style={{ display: "flex", gap: "1rem" }}>
         {columns.map((col) => (

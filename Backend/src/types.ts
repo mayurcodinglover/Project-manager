@@ -15,6 +15,13 @@ export interface Task extends BaseEntity{
     user?:User | null;
 }
 
+export interface UpdateTaskInput {
+    title?: string;
+    description?: string | null;
+    priority?: Priority;
+    status?: Status;
+    assignedTo?: string | null;
+}
 export type CreateTaskInput = {
   title: string;
   description: string;
