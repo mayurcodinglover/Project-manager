@@ -9,6 +9,10 @@ import cors from "cors";
 import { prisma } from "./prisma.js";
 import { CreateUserSchema } from './user.schema.js';
 import { UserRepository } from './user.repository.js';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET=process.env.JWT_SECRET ?? "testsecret";
 
 const userRepo=new UserRepository();
 
@@ -69,8 +73,9 @@ app.post("/tasks",async (req:Request,res:Response)=>{
     const newTask=await taskRepo.add({
         title:result.data.title,
         priority:result.data.priority,
-        description:result.data.description ?? null,
-        assignedTo:result.data.assignedTo ?? null
+        description:result.data.description ?? "",
+        status:result.data.status,
+        assignedTo:result.data.assignedTo ?? ""
     });
     res.status(201).json(newTask);
     });
@@ -89,4 +94,29 @@ app.delete("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
     }
     await taskRepo.delete(req.params.id);
     res.status(204).send();
+})
+
+app.post("/auth/signup",async(req:Request,res:Response)=>{
+    const {name,email,password}=req.body;
+    const hashed=await bcrypt.hash(password,10);
+    const user=await prisma.user.create({data:{name,email,password:hashed}});
+    res.status(201).json({id:user.id,name:user.name,email:user.email});
+})
+interface JwtPayload{
+    userId:string;
+    email:string;
+}
+app.post("/auth/login",async(req:Request,res:Response)=>{
+    const {email,password}=req.body;
+    const user=await prisma.user.findUnique({where:{email}});
+    if(!user){
+        return res.status(401).json({error:"Invalid credentials"});
+    }
+    const valid=await bcrypt.compare(password,user.password);
+    if(!valid){
+        return res.status(401).json({error:"Invalid credentials"});
+    }
+    const payload:JwtPayload={userId:user.id,email:user.email};
+    const token=jwt.sign(payload,JWT_SECRET,{expiresIn:"1h"});
+    res.json({token});
 })
