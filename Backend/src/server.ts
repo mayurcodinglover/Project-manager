@@ -11,6 +11,7 @@ import { CreateUserSchema } from './user.schema.js';
 import { UserRepository } from './user.repository.js';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {requireAuth} from "./auth.middleware.js";
 
 const JWT_SECRET=process.env.JWT_SECRET ?? "testsecret";
 
@@ -64,7 +65,7 @@ app.get("/tasks/:status",async(req:Request<{status:Status}>,res:Response)=>{
     const tasks=await taskRepo.getAll();
     res.json(tasks.filter(task=>task.status===req.params.status));
 })
-app.post("/tasks",async (req:Request,res:Response)=>{
+app.post("/tasks",requireAuth,async (req:Request,res:Response)=>{
     const result=CreateTaskSchema.safeParse(req.body);
     if(!result.success){
         return res.status(400).json({error:result.error.flatten()});
@@ -79,7 +80,7 @@ app.post("/tasks",async (req:Request,res:Response)=>{
     });
     res.status(201).json(newTask);
     });
-app.patch("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
+app.patch("/tasks/:id",requireAuth,async(req:Request<{id:string}>,res:Response)=>{
     try {
         const updated=await taskRepo.update(req.params.id,req.body);
         res.json(updated);
@@ -87,7 +88,7 @@ app.patch("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
         res.status(404).json({error:"Task not found"})
     }
 })
-app.delete("/tasks/:id",async(req:Request<{id:string}>,res:Response)=>{
+app.delete("/tasks/:id",requireAuth,async(req:Request<{id:string}>,res:Response)=>{
     const task=await taskRepo.getById(req.params.id);
     if(!task){
         return res.status(404).json({error:"Task not found"});
